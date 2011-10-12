@@ -7,10 +7,10 @@ class Niconico
   end
 
   class Video
-    DEFFERABLES = [:id, :title, :url, :video_url, :type]
-    DEFFERABLES_VAR = DEFFERABLES.map{|k| :"@#{k}" }
+    DEFERRABLES = [:id, :title, :url, :video_url, :type]
+    DEFERRABLES_VAR = DEFERRABLES.map{|k| :"@#{k}" }
 
-    DEFFERABLES.zip(DEFFERABLES_VAR).each do |(k,i)|
+    DEFERRABLE.zip(DEFERRABLE_VAR).each do |(k,i)|
       define_method(k) do
         instance_variable_get(i) || (get && instance_variable_get(i))
       end
@@ -24,7 +24,7 @@ class Niconico
 
       if defer
         defer.each do |k,v|
-          next unless DEFFERABLES.include?(k)
+          next unless DEFERRABLES.include?(k)
           instance_variable_set :"@#{k}", v
         end
         @page = nil

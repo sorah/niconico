@@ -2,7 +2,7 @@
 
 ## Description
 
-Wrapper of `Mechanize` and it scrapes <http://www.nicovideo.jp/>.
+Wrapper of `Mechanize`, optimized for <http://www.nicovideo.jp/>.
 
 ## Feature
 

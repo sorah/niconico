@@ -5,8 +5,6 @@ require 'mechanize'
 require 'cgi'
 
 class Niconico
-  VERSION = "1.0.0"
-
   URL = {
     login: 'https://secure.nicovideo.jp/secure/login?site=niconico',
     watch: 'http://www.nicovideo.jp/watch/',
@@ -33,11 +31,6 @@ class Niconico
 
     raise LoginError, "Failed to login (x-niconico-authflag is 0)" if page.header["x-niconico-authflag"] == '0'
     @logined = true
-  end
-
-  def video(video_id)
-    login unless @logined
-    Video.new(self, video_id)
   end
 
   def inspect

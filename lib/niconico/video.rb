@@ -7,7 +7,7 @@ class Niconico
   end
 
   class Video
-    DEFERRABLES = [:id, :title, :url, :video_url, :type]
+    DEFERRABLES = [:id, :title, :url, :video_url, :type, :tags]
     DEFERRABLES_VAR = DEFERRABLES.map{|k| :"@#{k}" }
 
     DEFERRABLES.zip(DEFERRABLES_VAR).each do |(k,i)|
@@ -57,6 +57,7 @@ class Niconico
               when 's'; :swf
               else;     :flv
               end
+      @tags = @page.search("#video_tags a[rel=tag]").map(&:inner_text)
 
       @page
     end

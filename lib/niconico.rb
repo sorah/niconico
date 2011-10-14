@@ -8,7 +8,7 @@ class Niconico
   URL = {
     login: 'https://secure.nicovideo.jp/secure/login?site=niconico',
     watch: 'http://www.nicovideo.jp/watch/',
-    getflv: 'http://www.nicovideo.jp/api/getflv'
+    getflv: 'http://flapi.nicovideo.jp/api/getflv'
   }
 
   TEST_VIDEO_ID = "sm9"

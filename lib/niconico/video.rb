@@ -19,7 +19,7 @@ class Niconico
     def initialize(parent, video_id, defer=nil)
       @parent = parent
       @agent = parent.agent
-      @id = video_id
+      @thread_id = @id = video_id
       @url = "#{Niconico::URL[:watch]}#{@id}"
 
       if defer
@@ -42,7 +42,12 @@ class Niconico
         raise NotFound, "#{@id} not found" if e.message == "404 => Net::HTTPNotFound"
         raise e
       end
-      getflv = Hash[@agent.get_file("#{Niconico::URL[:getflv]}?v=#{@id}").scan(/([^&]+)=([^&]+)/).map{|(k,v)| [k.to_sym,CGI.unescape(v)] }]
+
+      if /^so/ =~ @id
+        sleep 5
+        @thread_id = @agent.get("#{Niconico::URL[:watch]}#{@id}").uri.path.sub(/^\/watch\//,"")
+      end
+      getflv = Hash[@agent.get_file("#{Niconico::URL[:getflv]}?v=#{@thread_id}").scan(/([^&]+)=([^&]+)/).map{|(k,v)| [k.to_sym,CGI.unescape(v)] }]
 
       @title = @page.at("#video_title").inner_text
       @video_url = getflv[:url]
@@ -61,7 +66,7 @@ class Niconico
     end
 
     def get_video_by_other
-      {cookie: @agent.cookie_jar.cookies(URI.parse(@video_url)).join(";"),
+      {cookie: @agent.cookie_jar.cookies(URI.parse(@video_url)),
        url: @video_url}
     end
 

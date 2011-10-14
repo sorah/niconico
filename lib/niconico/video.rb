@@ -10,7 +10,7 @@ class Niconico
     DEFERRABLES = [:id, :title, :url, :video_url, :type]
     DEFERRABLES_VAR = DEFERRABLES.map{|k| :"@#{k}" }
 
-    DEFERRABLE.zip(DEFERRABLE_VAR).each do |(k,i)|
+    DEFERRABLES.zip(DEFERRABLES_VAR).each do |(k,i)|
       define_method(k) do
         instance_variable_get(i) || (get && instance_variable_get(i))
       end

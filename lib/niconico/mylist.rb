@@ -14,7 +14,7 @@ class Niconico
         Video.new(self, item["item_data"]["video_id"],
                   title: item["item_data"]["title"],
                   mylist_comment: item["description"])
-      end.reverse
+      end
     else
       raise MylistParseError
     end

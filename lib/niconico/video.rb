@@ -7,7 +7,7 @@ class Niconico
   end
 
   class Video
-    DEFERRABLES = [:id, :title, :url, :video_url, :type, :tags, :mylist_comment]
+    DEFERRABLES = [:id, :title, :url, :video_url, :type, :tags, :mylist_comment, :description, :description_raw]
     DEFERRABLES_VAR = DEFERRABLES.map{|k| :"@#{k}" }
 
     DEFERRABLES.zip(DEFERRABLES_VAR).each do |(k,i)|
@@ -50,6 +50,8 @@ class Niconico
       getflv = Hash[@agent.get_file("#{Niconico::URL[:getflv]}?v=#{@thread_id}").scan(/([^&]+)=([^&]+)/).map{|(k,v)| [k.to_sym,CGI.unescape(v)] }]
 
       @title = @page.at("#video_title").inner_text
+      @description = @page.at("#itab_description p").inner_text
+      @description_raw = @page.at("#itab_description p").inner_html
       @video_url = getflv[:url]
       @eco = !(/low$/ =~ @video_url).nil?
       @type = case @video_url.match(/^http:\/\/(.+\.)?nicovideo\.jp\/smile\?(.+?)=.*$/).to_a[2]

@@ -40,4 +40,5 @@ class Niconico
 end
 
 require_relative './niconico/video'
+require_relative './niconico/mylist'
 require_relative './niconico/ranking'

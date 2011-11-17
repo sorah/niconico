@@ -7,7 +7,7 @@ class Niconico
   end
 
   class Video
-    DEFERRABLES = [:id, :title, :url, :video_url, :type, :tags]
+    DEFERRABLES = [:id, :title, :url, :video_url, :type, :tags, :mylist_comment]
     DEFERRABLES_VAR = DEFERRABLES.map{|k| :"@#{k}" }
 
     DEFERRABLES.zip(DEFERRABLES_VAR).each do |(k,i)|
@@ -58,6 +58,7 @@ class Niconico
               else;     :flv
               end
       @tags = @page.search("#video_tags a[rel=tag]").map(&:inner_text)
+      @mylist_comment ||= nil
 
       @page
     end

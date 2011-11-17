@@ -10,7 +10,7 @@ class Niconico
     if page.search("script").map(&:inner_text).find{|x| /preload/ =~ x }.match(/Mylist\.preload\(\d+, (.+?)\);/)
       json = JSON.parse($1)
       #require 'pp'; pp json
-      json.map do |item|
+      json.sort_by{|item| item["create_time"].to_f }.map do |item|
         Video.new(self, item["item_data"]["video_id"],
                   title: item["item_data"]["title"],
                   mylist_comment: item["description"])

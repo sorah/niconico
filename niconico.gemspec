@@ -6,12 +6,12 @@ Gem::Specification.new do |s|
   s.name        = "niconico"
   s.version     = Niconico::VERSION
   s.authors     = ["Shota Fukumori (sora_h)"]
-  s.email       = ["sorah@tubusu.net"]
+  s.email       = ["her@sorah.jp"]
   s.homepage    = ""
   s.summary     = "wrapper of Mechanize, optimized for nicovideo."
   s.description = "wrapper of Mechanize, optimized for nicovideo. :)"
 
-  s.rubyforge_project = "niconico"
+  s.add_dependency "mechanize", '>= 2.7.3'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

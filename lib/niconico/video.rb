@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+require 'json'
 
 class Niconico
   def video(video_id)
@@ -49,10 +50,17 @@ class Niconico
       end
       getflv = Hash[@agent.get_file("#{Niconico::URL[:getflv]}?v=#{@thread_id}").scan(/([^&]+)=([^&]+)/).map{|(k,v)| [k.to_sym,CGI.unescape(v)] }]
 
+      if api_data = @page.at("#watchAPIDataContainer")
+        video_detail = JSON.parse(api_data.text())["videoDetail"]
+        @title ||= video_detail["title"] if video_detail["title"]
+        @description ||= video_detail["description"] if video_detail["description"]
+        @tags  ||= video_detail["tagList"].map{|e| e["tag"]}
+      end
+
       t = @page.at("#videoTitle")
-      @title = t.inner_text if !t.nil?
+      @title ||= t.inner_text unless t.nil?
       d = @page.at("div#videoComment>div.videoDescription")
-      @description = d.inner_html if !d.nil?
+      @description ||= d.inner_html unless d.nil?
 
       @video_url = getflv[:url]
       @eco = !(/low$/ =~ @video_url).nil?
@@ -61,7 +69,7 @@ class Niconico
               when 's'; :swf
               else;     :flv
               end
-      @tags = @page.search("#video_tags a[rel=tag]").map(&:inner_text)
+      @tags ||= @page.search("#video_tags a[rel=tag]").map(&:inner_text)
       @mylist_comment ||= nil
 
       @page

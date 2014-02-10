@@ -3,6 +3,7 @@
 require 'rubygems'
 require 'mechanize'
 require 'cgi'
+require 'niconico/version'
 
 class Niconico
   URL = {
@@ -22,6 +23,7 @@ class Niconico
     @logined = false
 
     @agent = Mechanize.new.tap do |agent|
+      agent.user_agent = "Niconico.gem (#{Niconico::VERSION}, https://github.com/sorah/niconico)"
       agent.ssl_version = 'SSLv3'
     end
   end

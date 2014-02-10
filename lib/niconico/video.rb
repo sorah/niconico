@@ -36,7 +36,7 @@ class Niconico
 
     def economy?; @eco; end
 
-    def get
+    def get(options = {})
       begin
         @page = @agent.get(@url)
       rescue Mechanize::ResponseCodeError => e
@@ -48,7 +48,11 @@ class Niconico
         sleep 5
         @thread_id = @agent.get("#{Niconico::URL[:watch]}#{@id}").uri.path.sub(/^\/watch\//,"")
       end
-      getflv = Hash[@agent.get_file("#{Niconico::URL[:getflv]}?v=#{@thread_id}&as3=1").scan(/([^&]+)=([^&]+)/).map{|(k,v)| [k.to_sym,CGI.unescape(v)] }]
+      additional_params = nil
+      if /^nm/ === @id && (!options.key?(:as3) || options[:as3])
+        additional_params = "&as3=1"
+      end
+      getflv = Hash[@agent.get_file("#{Niconico::URL[:getflv]}?v=#{@thread_id}#{additional_params}").scan(/([^&]+)=([^&]+)/).map{|(k,v)| [k.to_sym,CGI.unescape(v)] }]
 
       if api_data = @page.at("#watchAPIDataContainer")
         video_detail = JSON.parse(api_data.text())["videoDetail"]

@@ -48,7 +48,7 @@ class Niconico
         sleep 5
         @thread_id = @agent.get("#{Niconico::URL[:watch]}#{@id}").uri.path.sub(/^\/watch\//,"")
       end
-      getflv = Hash[@agent.get_file("#{Niconico::URL[:getflv]}?v=#{@thread_id}").scan(/([^&]+)=([^&]+)/).map{|(k,v)| [k.to_sym,CGI.unescape(v)] }]
+      getflv = Hash[@agent.get_file("#{Niconico::URL[:getflv]}?v=#{@thread_id}&as3=1").scan(/([^&]+)=([^&]+)/).map{|(k,v)| [k.to_sym,CGI.unescape(v)] }]
 
       if api_data = @page.at("#watchAPIDataContainer")
         video_detail = JSON.parse(api_data.text())["videoDetail"]

@@ -21,7 +21,9 @@ class Niconico
 
     @logined = false
 
-    @agent = Mechanize.new
+    @agent = Mechanize.new.tap do |agent|
+      agent.ssl_version = 'SSLv3'
+    end
   end
 
   def login(force=false)

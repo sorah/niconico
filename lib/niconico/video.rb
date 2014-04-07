@@ -20,6 +20,7 @@ class Niconico
     def initialize(parent, video_id, defer=nil)
       @parent = parent
       @agent = parent.agent
+      @fetched = false
       @thread_id = @id = video_id
       @url = "#{Niconico::URL[:watch]}#{@id}"
 
@@ -35,6 +36,7 @@ class Niconico
     end
 
     def economy?; @eco; end
+    def fetched?; @fetched; end
 
     def get(options = {})
       begin
@@ -76,6 +78,7 @@ class Niconico
       @tags ||= @page.search("#video_tags a[rel=tag]").map(&:inner_text)
       @mylist_comment ||= nil
 
+      @fetched = true
       @page
     end
 

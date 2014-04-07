@@ -96,7 +96,7 @@ class Niconico
     def get_video_by_other
       raise VideoUnavailableError unless available?
       {cookie: @agent.cookie_jar.cookies(URI.parse(@video_url)),
-       url: @video_url}
+       url: video_url}
     end
 
     def inspect

@@ -69,12 +69,14 @@ class Niconico
       @description ||= d.inner_html unless d.nil?
 
       @video_url = getflv[:url]
-      @eco = !(/low$/ =~ @video_url).nil?
-      @type = case @video_url.match(/^http:\/\/(.+\.)?nicovideo\.jp\/smile\?(.+?)=.*$/).to_a[2]
-              when 'm'; :mp4
-              when 's'; :swf
-              else;     :flv
-              end
+      if @video_url
+        @eco = !(/low$/ =~ @video_url).nil?
+        @type = case @video_url.match(/^http:\/\/(.+\.)?nicovideo\.jp\/smile\?(.+?)=.*$/).to_a[2]
+                when 'm'; :mp4
+                when 's'; :swf
+                else;     :flv
+                end
+      end
       @tags ||= @page.search("#video_tags a[rel=tag]").map(&:inner_text)
       @mylist_comment ||= nil
 
@@ -82,11 +84,17 @@ class Niconico
       @page
     end
 
+    def available?
+      !!video_url
+    end
+
     def get_video
-      @agent.get_file(@video_url)
+      raise VideoUnavailableError unless available?
+      @agent.get_file(video_url)
     end
 
     def get_video_by_other
+      raise VideoUnavailableError unless available?
       {cookie: @agent.cookie_jar.cookies(URI.parse(@video_url)),
        url: @video_url}
     end
@@ -96,5 +104,6 @@ class Niconico
     end
 
     class NotFound < StandardError; end
+    class VideoUnavailableError < StandardError; end
   end
 end

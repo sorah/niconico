@@ -100,7 +100,7 @@ class Niconico
     end
 
     def inspect
-      "#<Niconico::Video: #{@id}.#{@type} \"#{@title}\"#{@eco ? " low":""}>"
+      "#<Niconico::Video: #{@id}.#{@type} \"#{@title}\"#{@eco ? " low":""}#{(fetched? && !@video_url) ? ' (unavailable)' : ''}#{fetched? ? '' : ' (defered)'}>"
     end
 
     class NotFound < StandardError; end

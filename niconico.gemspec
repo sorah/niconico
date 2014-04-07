@@ -12,6 +12,7 @@ Gem::Specification.new do |s|
   s.description = "wrapper of Mechanize, optimized for nicovideo. :)"
 
   s.add_dependency "mechanize", '>= 2.7.3'
+  s.add_dependency "nokogiri", '>= 1.6.1'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

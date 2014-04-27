@@ -10,6 +10,7 @@ class Niconico
     class ReservationOutdated < Exception; end
     class ReservationNotAccepted < Exception; end
     class TicketRetrievingFailed < Exception; end
+    class AcceptingReservationFailed < Exception; end
 
     def initialize(parent, live_id)
       @parent = parent
@@ -48,7 +49,8 @@ class Niconico
       return self if reservation_accepted?
       raise ReservationOutdated if reservation_outdated?
 
-      @client.accept_watching_reservation(self.id)
+      result = @client.accept_watching_reservation(self.id)
+      raise AcceptingReservationFailed unless result
 
       self
     end

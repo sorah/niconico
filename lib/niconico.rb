@@ -42,7 +42,7 @@ class Niconico
   class LoginError < StandardError; end
 end
 
-require_relative './niconico/video'
-require_relative './niconico/mylist'
-require_relative './niconico/ranking'
-require_relative './niconico/channel'
+require 'niconico/video'
+require 'niconico/mylist'
+require 'niconico/ranking'
+require 'niconico/channel'

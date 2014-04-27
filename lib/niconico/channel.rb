@@ -2,7 +2,7 @@
 require 'json'
 require 'open-uri'
 require 'nokogiri'
-require_relative './video'
+require 'niconico/video'
 
 class Niconico
   def channel_videos(ch)

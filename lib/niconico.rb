@@ -6,6 +6,7 @@ require 'niconico/version'
 
 class Niconico
   URL = {
+    top: 'http://www.nicovideo.jp/',
     login: 'https://secure.nicovideo.jp/secure/login?site=niconico',
     watch: 'http://www.nicovideo.jp/watch/',
     getflv: 'http://flapi.nicovideo.jp/api/getflv'
@@ -15,9 +16,15 @@ class Niconico
 
   attr_reader :agent, :logined
 
-  def initialize(mail, pass)
-    @mail = mail
-    @pass = pass
+  def initialize(*args)
+    case args.size
+    when 2
+      @mail, @pass = args
+    when 1
+      @token = args.first
+    else
+      raise ArgumentError, "wrong number of arguments (#{args.size} for 1..2)"
+    end
 
     @logined = false
 
@@ -30,16 +37,44 @@ class Niconico
   def login(force=false)
     return false if !force && @logined
 
+    if @token
+      login_with_token
+    elsif @mail && @pass
+      login_with_email
+    else
+      raise 'huh? (may be bug)'
+    end
+  end
+
+  def inspect
+    "#<Niconico: #{@mail || '(token)'}, #{@logined ? "" : "not "}logined>"
+  end
+
+  class LoginError < StandardError; end
+
+  private
+
+  def login_with_email
     page = @agent.post(URL[:login], 'mail' => @mail, 'password' => @pass)
 
     raise LoginError, "Failed to login (x-niconico-authflag is 0)" if page.header["x-niconico-authflag"] == '0'
     @logined = true
   end
 
-  def inspect
-    "#<Niconico: #{@mail} (#{@logined ? "" : "not "}logined)>"
+  def login_with_token
+    @agent.cookie_jar.add(
+      HTTP::Cookie.new(
+        domain: '.nicovideo.jp', path: '/',
+        name: 'user_session', value: @token
+      )
+    )
+
+    page = @agent.get(URL[:top])
+    raise LoginError, "Failed to login (x-niconico-authflag is 0)" if page.header["x-niconico-authflag"] == '0'
+
+    @logined = true
   end
-  class LoginError < StandardError; end
+
 end
 
 require 'niconico/video'

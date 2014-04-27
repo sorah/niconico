@@ -52,6 +52,8 @@ class Niconico
       result = @client.accept_watching_reservation(self.id)
       raise AcceptingReservationFailed unless result
 
+      get(:reload)
+
       self
     end
 

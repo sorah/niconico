@@ -148,6 +148,7 @@ class Niconico
 
         publish_id   = cases.find { |_| _.start_with?('premium:') } if premium?
         publish_id ||= cases.find { |_| _.start_with?('default:') }
+        publish_id ||= cases[0]
 
         publish_id = publish_id.split(/:/).last
 

@@ -53,6 +53,10 @@ class Niconico
       self
     end
 
+    def inspect
+      "#<Niconico::Live: #{id}, #{title}>"
+    end
+
     def title
       get.live[:title]
     end

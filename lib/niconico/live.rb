@@ -143,7 +143,7 @@ class Niconico
       plays = quesheet.select{ |_| /^\/play / =~ _[:body] }
  
       plays.map.with_index do |play, i|
-        cases = play[:body].split(/ /)[1].split(/,/)
+        cases = play[:body].sub(/^case:/,'').split(/ /)[1].split(/,/)
         publish_id = nil
 
         publish_id   = cases.find { |_| _.start_with?('premium:') } if premium?

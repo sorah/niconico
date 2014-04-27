@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 require 'json'
+require 'niconico/deferrable'
 
 class Niconico
   def video(video_id)
@@ -8,35 +9,29 @@ class Niconico
   end
 
   class Video
-    DEFERRABLES = [:id, :title, :url, :video_url, :type, :tags, :mylist_comment, :description, :description_raw]
-    DEFERRABLES_VAR = DEFERRABLES.map{|k| :"@#{k}" }
+    include Niconico::Deferrable
 
-    DEFERRABLES.zip(DEFERRABLES_VAR).each do |(k,i)|
-      define_method(k) do
-        instance_variable_get(i) || (get && instance_variable_get(i))
-      end
-    end
+    deferrable :id, :title,
+      :description, :description_raw,
+      :url, :video_url, :type,
+      :tags, :mylist_comment
 
     def initialize(parent, video_id, defer=nil)
       @parent = parent
       @agent = parent.agent
       @fetched = false
       @thread_id = @id = video_id
+      @page = nil
       @url = "#{Niconico::URL[:watch]}#{@id}"
 
       if defer
-        defer.each do |k,v|
-          next unless DEFERRABLES.include?(k)
-          instance_variable_set :"@#{k}", v
-        end
-        @page = nil
+        preload_deffered_values(defer)
       else
-        @page = get()
+        get()
       end
     end
 
     def economy?; @eco; end
-    def fetched?; @fetched; end
 
     def get(options = {})
       begin

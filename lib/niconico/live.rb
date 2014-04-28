@@ -12,6 +12,22 @@ class Niconico
     class TicketRetrievingFailed < Exception; end
     class AcceptingReservationFailed < Exception; end
 
+    class << self
+      def public_key
+        @public_key ||= begin
+          if ENV["NICONICO_LIVE_PUBLIC_KEY"]
+            File.read(File.expand_path(ENV["NICONICO_LIVE_PUBLIC_KEY"]))
+          else
+            nil
+          end
+        end
+      end
+
+      def public_key=(other)
+        @public_key = other
+      end
+    end
+
     def initialize(parent, live_id)
       @parent = parent
       @agent = parent.agent
@@ -22,6 +38,11 @@ class Niconico
     end
 
     attr_reader :id, :live, :ticket
+    attr_writer :public_key
+
+    def public_key
+      @public_key || self.class.public_key
+    end
 
     def fetched?
       !!@fetched
@@ -38,7 +59,7 @@ class Niconico
       return @seat if @seat && !force
       raise ReservationNotAccepted if reserved? && !reservation_accepted?
 
-      @seat = @client.get_player_status(self.id)
+      @seat = @client.get_player_status(self.id, self.public_key)
 
       raise TicketRetrievingFailed, @seat[:error] if @seat[:error]
 

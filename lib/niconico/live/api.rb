@@ -1,9 +1,12 @@
 # coding: utf-8
 require 'time'
+require 'openssl'
 
 class Niconico
   class Live
     class API
+      class NoPublicKeyProvided < Exception; end
+
       URL_GETPLAYERSTATUS = 'http://ow.live.nicovideo.jp/api/getplayerstatus'.freeze
       URL_WATCHINGRESERVATION_LIST = 'http://live.nicovideo.jp/api/watchingreservation?mode=list'
 
@@ -70,9 +73,13 @@ class Niconico
         raise NotImplementedError
       end
 
-      def get_player_status(id)
+      def get_player_status(id, public_key = nil)
         id = normalize_id(id)
         page = agent.get("http://ow.live.nicovideo.jp/api/getplayerstatus?locale=GLOBAL&lang=ja%2Djp&v=#{id}&seat%5Flocale=JP")
+        if page.body[0] == 'c' # encrypted
+          page = Nokogiri::XML(decrypt_encrypted_player_status(page.body, public_key))
+        end
+
         status = page.at('getplayerstatus')
 
         if status['status'] == 'fail'
@@ -162,6 +169,31 @@ class Niconico
                           accept: 'true', mode: 'use', vid: id, token: token)
 
         page.at('nicolive_video_response')['status'] == 'ok'
+      end
+
+      def decrypt_encrypted_player_status(body, public_key)
+        unless public_key
+          raise NoPublicKeyProvided,
+            'You should provide proper public key to decrypt ' \
+            'encrypted player status'
+        end
+
+        lines = body.lines
+        pubkey = OpenSSL::PKey::RSA.new(public_key)
+
+        encrypted_shared_key = lines[1].unpack('m*')[0]
+        shared_key_raw = pubkey.public_decrypt(encrypted_shared_key)
+        shared_key = shared_key_raw.unpack('L>*')[0].to_s
+
+        cipher = OpenSSL::Cipher.new('bf-ecb').decrypt
+        cipher.padding = 0
+        cipher.key_len = shared_key.size
+        cipher.key = shared_key
+
+        encrypted_body = lines[2].unpack('m*')[0]
+
+        body = cipher.update(encrypted_body) + cipher.final
+        body.force_encoding('utf-8')
       end
 
       private

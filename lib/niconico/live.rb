@@ -174,7 +174,7 @@ class Niconico
            '-r', rtmp,
            '-C', "S:#{ticket}",
            '--playpath', "mp4:#{content}",
-           '--app', URI.parse(self.rtmp_url).path
+           '--app', URI.parse(self.rtmp_url).path.sub(/^\//,'')
           ]
         end
       end.flatten(1)

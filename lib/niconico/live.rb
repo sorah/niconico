@@ -173,6 +173,8 @@ class Niconico
            '-o', file,
            '-r', rtmp,
            '-C', "S:#{ticket}",
+           '--playpath', "mp4:#{content}",
+           '--app', URI.parse(self.rtmp_url).path
           ]
         end
       end.flatten(1)

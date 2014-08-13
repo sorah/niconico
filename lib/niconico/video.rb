@@ -14,7 +14,7 @@ class Niconico
     deferrable :id, :title,
       :description, :description_raw,
       :url, :video_url, :type,
-      :tags, :mylist_comment
+      :tags, :mylist_comment, :api_data
 
     def initialize(parent, video_id, defer=nil)
       @parent = parent
@@ -51,8 +51,9 @@ class Niconico
       end
       getflv = Hash[@agent.get_file("#{Niconico::URL[:getflv]}?v=#{@thread_id}#{additional_params}").scan(/([^&]+)=([^&]+)/).map{|(k,v)| [k.to_sym,CGI.unescape(v)] }]
 
-      if api_data = @page.at("#watchAPIDataContainer")
-        video_detail = JSON.parse(api_data.text())["videoDetail"]
+      if api_data_node = @page.at("#watchAPIDataContainer")
+        @api_data = JSON.parse(api_data_node.text())
+        video_detail = @api_data["videoDetail"]
         @title ||= video_detail["title"] if video_detail["title"]
         @description ||= video_detail["description"] if video_detail["description"]
         @tags  ||= video_detail["tagList"].map{|e| e["tag"]}

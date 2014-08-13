@@ -7,7 +7,7 @@ class Niconico
 
     page = @agent.get(url = "http://www.nicovideo.jp/mylist/#{i.to_s.sub(/^mylist\//,"")}")
     #require 'ir_b'; ir b
-    if page.search("script").map(&:inner_text).find{|x| /preload/ =~ x }.match(/Mylist\.preload\(\d+, (.+?)\);/)
+    if page.search("script").map(&:inner_text).find{|x| /\tMylist\.preload/ =~ x }.match(/\tMylist\.preload\(\d+, (.+?)\);\n/)
       json = JSON.parse($1)
       #require 'pp'; pp json
       json.sort_by{|item| item["create_time"].to_f }.map do |item|

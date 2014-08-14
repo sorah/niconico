@@ -5,7 +5,7 @@ class Niconico
         keys.each do |key|
           binding.eval(<<-EOM, __FILE__, __LINE__.succ)
             define_method(:#{key}) do
-              get() unless fetched?
+              get() if @#{key}.nil? && !fetched?
               @#{key}
             end
           EOM

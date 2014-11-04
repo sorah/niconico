@@ -167,7 +167,7 @@ class Niconico
 
       plays = quesheet.select{ |_| /^\/play / =~ _[:body] }
  
-      plays.map.with_index do |play, i|
+      plays.flat_map.with_index do |play, i|
         cases = play[:body].sub(/^case:/,'').split(/ /)[1].split(/,/)
         publish_id = nil
 
@@ -198,7 +198,7 @@ class Niconico
            '--app', URI.parse(self.rtmp_url).path.sub(/^\//,'')
           ]
         end
-      end.flatten(1)
+      end
     end
   end
 end

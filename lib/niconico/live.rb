@@ -158,6 +158,15 @@ class Niconico
       seat[:quesheet]
     end
 
+    def execute_rtmpdump(file_base, ignore_failure = false)
+      rtmpdump_commands(file_base).map do |cmd|
+        system *cmd
+        retval = $?
+        raise RtmpdumpFailed, "#{cmd.inspect} failed" if !retval.success? && !ignore_failure
+        [cmd, retval]
+      end
+    end
+
     def rtmpdump_commands(file_base)
       file_base = File.expand_path(file_base)
 

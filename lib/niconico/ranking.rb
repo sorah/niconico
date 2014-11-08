@@ -22,7 +22,7 @@ class Niconico
     method = :fav if method == :all
 
     page = @agent.get(url = "http://www.nicovideo.jp/ranking/#{method}/#{span}/#{category}")
-    page.search("a.watch").map do |link|
+    page.search(".ranking.itemTitle a").map do |link|
       Video.new(self, link['href'].sub(/^.*?watch\//,""), title: link.inner_text)
     end
   end

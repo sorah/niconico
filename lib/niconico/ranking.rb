@@ -7,7 +7,7 @@ class Niconico
   #
   # options[:method] -> :fav,     :view, :comment, :mylist
   #                     (or :all)        (or :res)
-  def ranking(category, options={})
+  def ranking(category = 'all', options={})
     login unless @logined
 
     span = options[:span] || :daily

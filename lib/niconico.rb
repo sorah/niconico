@@ -60,6 +60,13 @@ class Niconico
     "#<Niconico: #{@mail || '(token)'}, #{@logged_in ? "" : "not "}logged in>"
   end
 
+  def token
+    return @token if @token
+    login unless logged_in?
+
+    @token = agent.cookie_jar.each('https://www.nicovideo.jp').find{|_| _.name == 'user_session' }.value
+  end
+
   class LoginError < StandardError; end
 
   private

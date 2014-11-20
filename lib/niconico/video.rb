@@ -4,7 +4,7 @@ require 'niconico/deferrable'
 
 class Niconico
   def video(video_id)
-    login unless @logined
+    login unless logged_in?
     Video.new(self, video_id)
   end
 

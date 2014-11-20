@@ -14,7 +14,10 @@ class Niconico
 
   TEST_VIDEO_ID = "sm9"
 
-  attr_reader :agent, :logined
+  attr_reader :agent
+
+  def logged_in?; @logged_in; end
+  alias logined logged_in?
 
   def initialize(*args)
     case args.size
@@ -26,7 +29,7 @@ class Niconico
       raise ArgumentError, "wrong number of arguments (#{args.size} for 1..2)"
     end
 
-    @logined = false
+    @logged_in = false
 
     @agent = Mechanize.new.tap do |agent|
       agent.user_agent = "Niconico.gem (#{Niconico::VERSION}, https://github.com/sorah/niconico)"
@@ -42,7 +45,7 @@ class Niconico
   end
 
   def login(force=false)
-    return false if !force && @logined
+    return false if !force && @logged_in
 
     if @token
       login_with_token
@@ -54,7 +57,7 @@ class Niconico
   end
 
   def inspect
-    "#<Niconico: #{@mail || '(token)'}, #{@logined ? "" : "not "}logined>"
+    "#<Niconico: #{@mail || '(token)'}, #{@logged_in ? "" : "not "}logged in>"
   end
 
   class LoginError < StandardError; end
@@ -65,7 +68,7 @@ class Niconico
     page = @agent.post(URL[:login], 'mail' => @mail, 'password' => @pass)
 
     raise LoginError, "Failed to login (x-niconico-authflag is 0)" if page.header["x-niconico-authflag"] == '0'
-    @logined = true
+    @logged_in = true
   end
 
   def login_with_token
@@ -79,7 +82,7 @@ class Niconico
     page = @agent.get(URL[:top])
     raise LoginError, "Failed to login (x-niconico-authflag is 0)" if page.header["x-niconico-authflag"] == '0'
 
-    @logined = true
+    @logged_in = true
   end
 
 end

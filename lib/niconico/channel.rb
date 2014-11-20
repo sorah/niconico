@@ -6,7 +6,7 @@ require 'niconico/video'
 
 class Niconico
   def channel_videos(ch)
-    login unless @logined
+    login unless logged_in?
 
     rss = Nokogiri::XML(open("http://ch.nicovideo.jp/#{ch}/video?rss=2.0", &:read))
 

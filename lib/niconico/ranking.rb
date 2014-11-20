@@ -8,7 +8,7 @@ class Niconico
   # options[:method] -> :fav,     :view, :comment, :mylist
   #                     (or :all)        (or :res)
   def ranking(category = 'all', options={})
-    login unless @logined
+    login unless logged_in?
 
     span = options[:span] || :daily
     span = :hourly  if span == :hour

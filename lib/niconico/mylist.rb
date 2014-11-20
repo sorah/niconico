@@ -3,7 +3,7 @@ require 'json'
 
 class Niconico
   def mylist(i)
-    login unless @logined
+    login unless logged_in?
 
     page = @agent.get(url = "http://www.nicovideo.jp/mylist/#{i.to_s.sub(/^mylist\//,"")}")
     #require 'ir_b'; ir b

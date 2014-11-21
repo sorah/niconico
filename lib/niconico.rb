@@ -24,7 +24,11 @@ class Niconico
     when 2
       @mail, @pass = args
     when 1
-      @token = args.first
+      if args.first.kind_of?(Hash)
+        @mail, @pass, @token = args.first.values_at(:mail, :password, :token)
+      else
+        @token = args.first
+      end
     else
       raise ArgumentError, "wrong number of arguments (#{args.size} for 1..2)"
     end
@@ -47,12 +51,18 @@ class Niconico
   def login(force=false)
     return false if !force && @logged_in
 
-    if @token
+    if @token && @mail && @pass
+      begin
+        login_with_token
+      rescue LoginError
+        login_with_email
+      end
+    elsif @token
       login_with_token
     elsif @mail && @pass
       login_with_email
     else
-      raise 'huh? (may be bug)'
+      raise ArgumentError, 'Insufficient options for logging in (token or/and pair of mail and password required)'
     end
   end
 
@@ -75,6 +85,7 @@ class Niconico
     page = @agent.post(URL[:login], 'mail' => @mail, 'password' => @pass)
 
     raise LoginError, "Failed to login (x-niconico-authflag is 0)" if page.header["x-niconico-authflag"] == '0'
+    @token = nil
     @logged_in = true
   end
 

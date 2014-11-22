@@ -91,8 +91,31 @@ class Niconico
 
     def get_video_by_other
       raise VideoUnavailableError unless available?
+      warn "WARN: Niconico::Video#get_video_by_other is deprecated. use Video#video_cookie_jar or video_cookie_jar_file, and video_cookies with video_url instead. (Called by #{caller[0]})"
       {cookie: @agent.cookie_jar.cookies(URI.parse(@video_url)),
        url: video_url}
+    end
+
+    def video_cookies
+      return nil unless available?
+      @agent.cookie_jar.cookies(URI.parse(video_url))
+    end
+
+    def video_cookie_jar
+      raise VideoUnavailableError unless available?
+      video_cookies.map { |cookie|
+        [cookie.domain, "TRUE", cookie.path,
+         cookie.secure.inspect.upcase, cookie.expires.to_i,
+         cookie.name, cookie.value].join("\t")
+      }.join("\n")
+    end
+
+    def video_cookie_jar_file
+      raise VideoUnavailableError unless available?
+      Tempfile.new("niconico_cookie_jar_#{self.id}").tap do |io|
+        io.puts(video_cookie_jar)
+        io.flush
+      end
     end
 
     def inspect

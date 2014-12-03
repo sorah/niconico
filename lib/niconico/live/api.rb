@@ -24,7 +24,7 @@ class Niconico
         comment_area = page.at("#comment_area#{id}").inner_text
 
         result = {
-          title: page.at('h2 span').inner_text,
+          title: page.at('h2 span[itemprop="name"]').inner_text,
           id: id,
           description: page.at('.stream_description .text_area').inner_html,
         }

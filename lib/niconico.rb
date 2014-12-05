@@ -83,7 +83,7 @@ class Niconico
   def login_with_email
     page = @agent.post(URL[:login], 'mail' => @mail, 'password' => @pass)
 
-    raise LoginError, "Failed to login (x-niconico-authflag is 0)" if page.header["x-niconico-authflag"] == '0'
+    raise LoginError, "Failed to log in (x-niconico-authflag is 0)" if page.header["x-niconico-authflag"] == '0'
     @token = nil
     @logged_in = true
   end
@@ -97,7 +97,7 @@ class Niconico
     )
 
     page = @agent.get(URL[:top])
-    raise LoginError, "Failed to login (x-niconico-authflag is 0)" if page.header["x-niconico-authflag"] == '0'
+    raise LoginError, "Failed to log in (x-niconico-authflag is 0)" if page.header["x-niconico-authflag"] == '0'
 
     @logged_in = true
   end

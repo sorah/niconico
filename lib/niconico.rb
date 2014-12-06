@@ -12,8 +12,6 @@ class Niconico
     getflv: 'http://flapi.nicovideo.jp/api/getflv'
   }
 
-  TEST_VIDEO_ID = "sm9"
-
   attr_reader :agent
 
   def logged_in?; @logged_in; end

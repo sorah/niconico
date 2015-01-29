@@ -79,7 +79,7 @@ class Niconico
   private
 
   def login_with_email
-    page = @agent.post(URL[:login], 'mail' => @mail, 'password' => @pass)
+    page = @agent.post(URL[:login], 'mail_tel' => @mail, 'password' => @pass)
 
     raise LoginError, "Failed to log in (x-niconico-authflag is 0)" if page.header["x-niconico-authflag"] == '0'
     @token = nil

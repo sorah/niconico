@@ -9,7 +9,8 @@ class Niconico
     top: 'http://www.nicovideo.jp/',
     login: 'https://secure.nicovideo.jp/secure/login?site=niconico',
     watch: 'http://www.nicovideo.jp/watch/',
-    getflv: 'http://flapi.nicovideo.jp/api/getflv'
+    getflv: 'http://flapi.nicovideo.jp/api/getflv',
+    mymylist: 'http://www.nicovideo.jp/my/mylist'
   }
 
   attr_reader :agent
@@ -107,3 +108,4 @@ require 'niconico/mylist'
 require 'niconico/ranking'
 require 'niconico/channel'
 require 'niconico/live'
+require 'niconico/api'

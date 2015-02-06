@@ -118,6 +118,11 @@ class Niconico
       end
     end
 
+    def add_mylist(mylist_id, description='')
+      api = Niconico::API.new(@parent)
+      api.mylist_add(mylist_id, 0, @id, description)
+    end
+
     def inspect
       "#<Niconico::Video: #{@id}.#{@type} \"#{@title}\"#{@eco ? " low":""}#{(fetched? && !@video_url) ? ' (unavailable)' : ''}#{fetched? ? '' : ' (defered)'}>"
     end

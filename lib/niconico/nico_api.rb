@@ -2,8 +2,8 @@ require 'json'
 
 class Niconico
   class NicoAPI
-    class ApiStatusError < Exception; end
-    class FindTokenError < Exception; end
+    class ApiError < Exception; end
+    class AcquiringTokenError < Exception; end
 
     MYLIST_ITEM_TYPES = {video: 0, seiga: 5}
 
@@ -21,7 +21,7 @@ class Niconico
       if match
         match[1]
       else
-        raise FindTokenError, "Couldn't find a token"
+        raise AcquiringTokenError, "Couldn't find a token"
       end
     end
 
@@ -44,7 +44,7 @@ class Niconico
       uri = URI.join(Niconico::URL[:top], path)
       page = agent.post(uri, params)
       json = JSON.parse(page.body)
-      raise ApiStatusError, json unless json['status'] == 'ok'
+      raise ApiError, json unless json['status'] == 'ok'
       json
     end
 

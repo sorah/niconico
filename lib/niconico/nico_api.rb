@@ -1,7 +1,7 @@
 require 'json'
 
 class Niconico
-  class API
+  class NicoAPI
     class ApiStatusError < Exception; end
     class FindTokenError < Exception; end
 

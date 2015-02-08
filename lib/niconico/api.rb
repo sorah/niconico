@@ -4,16 +4,18 @@ class Niconico
   class API
     class ApiParseError < Exception; end
 
-    def initialize(parent, token=nil)
+    def initialize(parent)
       @parent = parent
-      @agent = parent.agent
-      @token = token || get_token
     end
 
+    def agent; @parent.agent; end
+
+    def token; @token ||= get_token; end
+
     def get_token
-      page = @agent.get(Niconico::URL[:my_mylist])
+      page = agent.get(Niconico::URL[:my_mylist])
       if page.search("script").map(&:inner_text).find{|x| /\tNicoAPI\.token/ =~ x }.match(/\tNicoAPI\.token = "(.+)";\n/)
-        @token = $1
+        $1
       else
         raise ApiParseError, 'token can not be acquired'
       end
@@ -28,7 +30,7 @@ class Niconico
           item_type: item_type,
           item_id: item_id,
           description: description,
-          token: @token
+          token: token
         }
       )
     end
@@ -36,7 +38,7 @@ class Niconico
     private
     def post path, params
       uri = URI.join(Niconico::URL[:top], path)
-      page = @agent.post(uri, params)
+      page = agent.post(uri, params)
       json = JSON.parse(page.body)
       raise ApiParseError, json unless json['status'] == 'ok'
       json

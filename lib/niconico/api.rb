@@ -23,7 +23,7 @@ class Niconico
       end
     end
 
-    def mylist_add group_id, item_type, item_id, description=''
+    def mylist_add(group_id, item_type, item_id, description='')
       !!post(
         '/api/mylist/add',
         {
@@ -38,12 +38,14 @@ class Niconico
     end
 
     private
-    def post path, params
+
+    def post(path, params)
       uri = URI.join(Niconico::URL[:top], path)
       page = agent.post(uri, params)
       json = JSON.parse(page.body)
       raise ApiParseError, json unless json['status'] == 'ok'
       json
     end
+
   end
 end

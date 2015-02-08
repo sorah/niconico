@@ -5,6 +5,8 @@ class Niconico
     class ApiParseError < Exception; end
     class FindTokenError < Exception; end
 
+    MYLIST_ITEM_TYPES = {video: 0, seiga: 5}
+
     def initialize(parent)
       @parent = parent
     end
@@ -28,8 +30,7 @@ class Niconico
         '/api/mylist/add',
         {
           group_id: group_id,
-          # video: 0 seiga: 5
-          item_type: item_type,
+          item_type: MYLIST_ITEM_TYPES[item_type],
           item_id: item_id,
           description: description,
           token: token

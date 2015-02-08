@@ -14,8 +14,9 @@ class Niconico
 
     def get_token
       page = agent.get(Niconico::URL[:my_mylist])
-      if page.search("script").map(&:inner_text).find{|x| /\tNicoAPI\.token/ =~ x }.match(/\tNicoAPI\.token = "(.+)";\n/)
-        $1
+      match = page.search("script").map(&:inner_text).grep(/\tNicoAPI\.token/) {|v| v.match(/\tNicoAPI\.token = "(.+)";\n/)}.first
+      if match
+        match[1]
       else
         raise ApiParseError, 'token can not be acquired'
       end

@@ -3,6 +3,7 @@ require 'json'
 class Niconico
   class API
     class ApiParseError < Exception; end
+    class FindTokenError < Exception; end
 
     def initialize(parent)
       @parent = parent
@@ -18,7 +19,7 @@ class Niconico
       if match
         match[1]
       else
-        raise ApiParseError, 'token can not be acquired'
+        raise FindTokenError, "Couldn't find a token"
       end
     end
 

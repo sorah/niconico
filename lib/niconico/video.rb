@@ -118,7 +118,7 @@ class Niconico
       end
     end
 
-    def add_mylist(mylist_id, description='')
+    def add_to_mylist(mylist_id, description='')
       api = Niconico::API.new(@parent)
       api.mylist_add(mylist_id, :video, @id, description)
     end

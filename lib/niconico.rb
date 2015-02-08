@@ -10,7 +10,7 @@ class Niconico
     login: 'https://secure.nicovideo.jp/secure/login?site=niconico',
     watch: 'http://www.nicovideo.jp/watch/',
     getflv: 'http://flapi.nicovideo.jp/api/getflv',
-    mymylist: 'http://www.nicovideo.jp/my/mylist'
+    my_mylist: 'http://www.nicovideo.jp/my/mylist'
   }
 
   attr_reader :agent

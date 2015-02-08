@@ -11,7 +11,7 @@ class Niconico
     end
 
     def get_token
-      page = @agent.get(Niconico::URL[:mymylist])
+      page = @agent.get(Niconico::URL[:my_mylist])
       if page.search("script").map(&:inner_text).find{|x| /\tNicoAPI\.token/ =~ x }.match(/\tNicoAPI\.token = "(.+)";\n/)
         @token = $1
       else

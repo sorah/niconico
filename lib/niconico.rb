@@ -75,6 +75,12 @@ class Niconico
     @token = agent.cookie_jar.each('https://www.nicovideo.jp').find{|_| _.name == 'user_session' }.value
   end
 
+  def nico_api
+    return @nico_api if @nico_api
+    login unless logged_in?
+    @nico_api = NicoAPI.new(self)
+  end
+
   class LoginError < StandardError; end
 
   private

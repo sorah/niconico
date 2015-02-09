@@ -86,7 +86,18 @@ class Niconico
 
     def get_video
       raise VideoUnavailableError unless available?
-      @agent.get_file(video_url)
+      unless block_given?
+          @agent.get_file(video_url)
+      else
+        cookies = video_cookies.map(&:to_s).join(';')
+        uri = URI(video_url)
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.request_get(uri.request_uri, 'Cookie' => cookies) do |res|
+          res.read_body do |body|
+            yield body
+          end
+        end
+      end
     end
 
     def get_video_by_other

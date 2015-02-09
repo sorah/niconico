@@ -9,7 +9,8 @@ class Niconico
     top: 'http://www.nicovideo.jp/',
     login: 'https://secure.nicovideo.jp/secure/login?site=niconico',
     watch: 'http://www.nicovideo.jp/watch/',
-    getflv: 'http://flapi.nicovideo.jp/api/getflv'
+    getflv: 'http://flapi.nicovideo.jp/api/getflv',
+    my_mylist: 'http://www.nicovideo.jp/my/mylist'
   }
 
   attr_reader :agent
@@ -74,6 +75,12 @@ class Niconico
     @token = agent.cookie_jar.each('https://www.nicovideo.jp').find{|_| _.name == 'user_session' }.value
   end
 
+  def nico_api
+    return @nico_api if @nico_api
+    login unless logged_in?
+    @nico_api = NicoAPI.new(self)
+  end
+
   class LoginError < StandardError; end
 
   private
@@ -107,3 +114,4 @@ require 'niconico/mylist'
 require 'niconico/ranking'
 require 'niconico/channel'
 require 'niconico/live'
+require 'niconico/nico_api'

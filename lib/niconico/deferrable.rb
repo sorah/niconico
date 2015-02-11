@@ -16,6 +16,25 @@ class Niconico
       def deferred_methods
         @deferred_methods ||= []
       end
+
+      def lazy(key, &block)
+        define_method(key) do
+          case
+          when fetched?
+            self.instance_eval &block
+          when @preload[key]
+            @preload[key]
+          else
+            get()
+            self.instance_eval &block
+          end
+        end
+        self.lazy_methods.push key
+      end
+
+      def lazy_methods
+        @lazy_methods ||= []
+      end
     end
 
     def self.included(klass)
@@ -31,9 +50,14 @@ class Niconico
     private
 
     def preload_deffered_values(vars={})
+      @preload ||= {}
       vars.each do |k,v|
-        next unless self.class.deferred_methods.include?(k)
-        instance_variable_set "@#{k}", v
+        case
+        when self.class.deferred_methods.include?(k)
+          instance_variable_set "@#{k}", v
+        when self.class.lazy_methods.include?(k)
+          @preload[k] = v
+        end
       end
     end
   end

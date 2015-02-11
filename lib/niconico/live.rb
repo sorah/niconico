@@ -1,4 +1,5 @@
 # coding: utf-8
+require 'niconico/deferrable'
 require 'niconico/live/api'
 
 class Niconico
@@ -7,6 +8,8 @@ class Niconico
   end
 
   class Live
+    include Niconico::Deferrable
+
     class ReservationOutdated < Exception; end
     class ReservationNotAccepted < Exception; end
     class TicketRetrievingFailed < Exception; end
@@ -28,13 +31,17 @@ class Niconico
       end
     end
 
-    def initialize(parent, live_id)
+    def initialize(parent, live_id, preload = nil)
       @parent = parent
       @agent = parent.agent
       @id = @live_id = live_id
       @client = Niconico::Live::API.new(@agent)
 
-      get()
+      if preload
+        preload_deffered_values(preload)
+      else
+        get
+      end
     end
 
     attr_reader :id, :live, :ticket
@@ -82,24 +89,24 @@ class Niconico
       "#<Niconico::Live: #{id}, #{title}>"
     end
 
-    def title
-      get.live[:title]
+    lazy :title do
+      live[:title]
     end
 
-    def description
-      get.live[:description]
+    lazy :description do
+      live[:description]
     end
 
-    def opens_at
-      get.live[:opens_at]
+    lazy :opens_at do
+      live[:opens_at]
     end
 
-    def starts_at
-      get.live[:starts_at]
+    lazy :starts_at do
+      live[:starts_at]
     end
 
-    def status
-      get.live[:status]
+    lazy :status do
+      live[:status]
     end
 
     def scheduled?
@@ -114,20 +121,24 @@ class Niconico
       status == :closed
     end
 
+    lazy :reservation do
+      live[:reservation]
+    end
+
     def reserved?
-      get.live.key? :reservation
+      !!reservation
     end
 
     def reservation_unaccepted?
-      reserved? && live[:reservation][:status] == :reserved
+      reserved? && reservation[:status] == :reserved
     end
 
     def reservation_accepted?
-      reserved? && live[:reservation][:status] == :accepted
+      reserved? && reservation[:status] == :accepted
     end
 
     def reservation_outdated?
-      reserved? && live[:reservation][:status] == :outdated
+      reserved? && reservation[:status] == :outdated
     end
 
     def reservation_available?
@@ -135,11 +146,11 @@ class Niconico
     end
 
     def reservation_expires_at
-      reserved? ? live[:reservation][:expires_at] : nil
+      reserved? ? reservation[:expires_at] : nil
     end
 
-    def channel
-      get.live[:channel]
+    lazy :channel do
+      live[:channel]
     end
 
     def premium?

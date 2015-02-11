@@ -16,6 +16,36 @@ class Niconico
 
       attr_reader :agent
 
+      def self.parse_reservation_message(message)
+        valid_until_message = message.match(/使用期限: (.+?)まで/)
+        valid_message = message.match(/\[視聴期限未定\]/)
+
+        case
+        when valid_until_message || valid_message
+          {}.tap do |reservation|
+            if valid_until_message
+              reservation[:expires_at] = Time.parse("#{valid_until_message[1] || valid_until_message[2]} +0900")
+            end
+
+            if message.include?('視聴権を使用し、タイムシフト視聴を行いますか？')
+              reservation[:status] = :reserved
+              reservation[:available] = true
+            elsif message.include?('本番組は、タイムシフト視聴を行う事が可能です。')
+              reservation[:status] = :accepted
+              reservation[:available] = true
+            elsif message.include?('タイムシフト視聴をこれ以上行う事は出来ません。') \
+                  || message.include?('視聴権の利用期限が過ぎています。') \
+                  || message.include?('視聴権利用期限が切れています') \
+                  || message.include?('タイムシフト利用期間は終了しました')
+              reservation[:status] = :outdated
+              reservation[:available] = false
+            end
+          end
+        else
+          nil
+        end
+      end
+
       def get(id)
         id = normalize_id(id)
 
@@ -41,24 +71,7 @@ class Niconico
           result[:closed_at] = Time.parse("#{close_message[1]} +0900")
         end
 
-        reservation_valid_until_message = comment_area.match(/使用期限: (.+?)まで/)
-        reservation_valid_message = comment_area.match(/\[視聴期限未定\]/)
-        if reservation_valid_until_message || reservation_valid_message
-          result[:reservation] = {}
-          if reservation_valid_until_message
-            result[:reservation][:expires_at] = Time.parse("#{reservation_valid_until_message[1]} +0900")
-          end
-
-          if comment_area.include?('視聴権を使用し、タイムシフト視聴を行いますか？')
-            result[:reservation][:status] = :reserved
-            result[:reservation][:available] = true
-          elsif comment_area.include?('本番組は、タイムシフト視聴を行う事が可能です。')
-            result[:reservation][:status] = :accepted
-            result[:reservation][:available] = true
-          elsif comment_area.include?('タイムシフト視聴をこれ以上行う事は出来ません。') || comment_area.include?('視聴権の利用期限が過ぎています。')
-            result[:reservation][:status] = :outdated
-          end
-        end
+        result[:reservation] = self.class.parse_reservation_message(comment_area)
 
         channel = page.at('div.chan')
         if channel

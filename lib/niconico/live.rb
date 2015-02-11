@@ -134,7 +134,7 @@ class Niconico
     end
 
     def reservation_unaccepted?
-      reserved? && reservation[:status] == :reserved
+      reservation_available? && reservation[:status] == :reserved
     end
 
     def reservation_accepted?

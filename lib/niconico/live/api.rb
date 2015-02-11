@@ -42,9 +42,12 @@ class Niconico
         end
 
         reservation_valid_until_message = comment_area.match(/使用期限: (.+?)まで/)
-        if reservation_valid_until_message 
+        reservation_valid_message = comment_area.match(/\[視聴期限未定\]/)
+        if reservation_valid_until_message || reservation_valid_message
           result[:reservation] = {}
-          result[:reservation][:expires_at] = Time.parse("#{reservation_valid_until_message[1]} +0900")
+          if reservation_valid_until_message
+            result[:reservation][:expires_at] = Time.parse("#{reservation_valid_until_message[1]} +0900")
+          end
 
           if comment_area.include?('視聴権を使用し、タイムシフト視聴を行いますか？')
             result[:reservation][:status] = :reserved

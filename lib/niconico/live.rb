@@ -129,6 +129,10 @@ class Niconico
       !!reservation
     end
 
+    def reservation_available?
+      reserved? && reservation[:available]
+    end
+
     def reservation_unaccepted?
       reserved? && reservation[:status] == :reserved
     end
@@ -139,10 +143,6 @@ class Niconico
 
     def reservation_outdated?
       reserved? && reservation[:status] == :outdated
-    end
-
-    def reservation_available?
-      reservation_unaccepted? || reservation_accepted?
     end
 
     def reservation_expires_at

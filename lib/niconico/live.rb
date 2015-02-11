@@ -86,7 +86,7 @@ class Niconico
     end
 
     def inspect
-      "#<Niconico::Live: #{id}, #{title}>"
+      "#<Niconico::Live: #{id}, #{title}#{fetched? ? '': ' (deferred)'}>"
     end
 
     lazy :title do

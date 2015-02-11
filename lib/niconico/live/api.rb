@@ -17,7 +17,7 @@ class Niconico
       attr_reader :agent
 
       def self.parse_reservation_message(message)
-        valid_until_message = message.match(/使用期限: (.+?)まで/)
+        valid_until_message = message.match(/(?:使用|利用)?期限: (.+?)まで|(?:期限中、何度でも視聴できます|視聴権(?:利用|使用)期限が切れています|タイムシフト利用期間は終了しました)\s*\[(.+?)まで\]/)
         valid_message = message.match(/\[視聴期限未定\]/)
 
         case
@@ -32,13 +32,16 @@ class Niconico
             if message.include?('視聴権を使用し、タイムシフト視聴を行いますか？')
               reservation[:status] = :reserved
               reservation[:available] = true
-            elsif message.include?('本番組は、タイムシフト視聴を行う事が可能です。')
+            elsif message.include?('本番組は、タイムシフト視聴を行う事が可能です。') \
+                  || message.include?('期限中、何度でも視聴できます')
               reservation[:status] = :accepted
               reservation[:available] = true
             elsif message.include?('タイムシフト視聴をこれ以上行う事は出来ません。') \
                   || message.include?('視聴権の利用期限が過ぎています。') \
                   || message.include?('視聴権利用期限が切れています') \
-                  || message.include?('タイムシフト利用期間は終了しました')
+                  || message.include?('視聴権使用期限が切れています') \
+                  || message.include?('タイムシフト利用期間は終了しました') \
+                  || message.include?('アーカイブ公開期限は終了しました。')
               reservation[:status] = :outdated
               reservation[:available] = false
             end

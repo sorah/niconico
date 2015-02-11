@@ -21,6 +21,8 @@ class Niconico
         valid_message = message.match(/\[視聴期限未定\]/)
 
         case
+        when message.match(/予約中\s*\[/)
+          {status: :reserved, available: false}
         when valid_until_message || valid_message
           {}.tap do |reservation|
             if valid_until_message
@@ -72,6 +74,9 @@ class Niconico
         end
 
         result[:reservation] = self.class.parse_reservation_message(comment_area)
+        if !result[:reservation] && page.search(".watching_reservation_reserved").any? { |_| _['onclick'].include?(id) }
+          result[:reservation] = {status: :reserved, available: false}
+        end
 
         channel = page.at('div.chan')
         if channel

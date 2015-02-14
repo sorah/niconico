@@ -41,7 +41,6 @@ class Niconico
           item_type: MYLIST_ITEM_TYPES[item_type],
           item_id: item_id,
           description: description,
-          token: token,
         }
       )
     end
@@ -49,13 +48,25 @@ class Niconico
     private
 
     def post(path, params)
-      uri = URI.join(Niconico::URL[:top], path)
-      page = agent.post(uri, params)
-      json = JSON.parse(page.body)
+      retried = false
+      begin
+        params = params.merge(token: token)
+        uri = URI.join(Niconico::URL[:top], path)
+        page = agent.post(uri, params)
+        json = JSON.parse(page.body)
 
-      raise ApiError.new(json['error']) unless json['status'] == 'ok'
+        raise ApiError.new(json['error']) unless json['status'] == 'ok'
 
-      json
+        json
+      rescue ApiError => e
+        if (e.code == 'INVALIDTOKEN' || e.code == 'EXPIRETOKEN') && !retried
+          retried = true
+          @token = nil
+          retry
+        else
+          raise e
+        end
+      end
     end
   end
 end

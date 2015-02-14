@@ -2,8 +2,16 @@ require 'json'
 
 class Niconico
   class NicoAPI
-    class ApiError < Exception; end
     class AcquiringTokenError < Exception; end
+    class ApiError < Exception
+      def initialize(error)
+        @description = error['description']
+        @code = error['code']
+        super "#{@code}: #{@description.inspect}"
+      end
+
+      attr_reader :code, :description
+    end
 
     MYLIST_ITEM_TYPES = {video: 0, seiga: 5}
 
@@ -33,7 +41,7 @@ class Niconico
           item_type: MYLIST_ITEM_TYPES[item_type],
           item_id: item_id,
           description: description,
-          token: token
+          token: token,
         }
       )
     end
@@ -44,9 +52,10 @@ class Niconico
       uri = URI.join(Niconico::URL[:top], path)
       page = agent.post(uri, params)
       json = JSON.parse(page.body)
-      raise ApiError, json unless json['status'] == 'ok'
+
+      raise ApiError.new(json['error']) unless json['status'] == 'ok'
+
       json
     end
-
   end
 end

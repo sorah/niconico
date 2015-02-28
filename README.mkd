@@ -12,7 +12,7 @@ Wrapper of `Mechanize`, optimized for <http://www.nicovideo.jp/>.
 
 ## Requirements
 
-* Ruby 1.9+ (1.9.2+ is supported)
+* Ruby 2.0.0+ (2.1+ is supported)
 
 ## Install
 

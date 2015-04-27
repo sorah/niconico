@@ -187,7 +187,7 @@ class Niconico
       def accept_watching_reservation(id_)
         id = normalize_id(id_, with_lv: false)
         page = agent.get("http://live.nicovideo.jp/api/watchingreservation?mode=confirm_watch_my&vid=#{id}&next_url&analytic")
-        token = page.at('#reserve img')['onclick'].scan(/'(.+?)'/)[1][0]
+        token = page.at('#reserve button')['onclick'].scan(/'(.+?)'/)[1][0]
 
         page = agent.post("http://live.nicovideo.jp/api/watchingreservation",
                           accept: 'true', mode: 'use', vid: id, token: token)

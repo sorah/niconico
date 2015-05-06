@@ -224,9 +224,8 @@ class Niconico
         body.force_encoding('utf-8')
       end
 
-      def remove_timeshift_all
+      def remove_timeshifts(ids)
         post_body = "delete=timeshift&confirm=#{fetch_token}"
-        ids = watching_reservations
         if ids.size == 0
           return
         end

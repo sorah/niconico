@@ -3,6 +3,10 @@ require 'time'
 require 'openssl'
 
 class Niconico
+  def live_api
+    Live::API.new(self.agent)
+  end
+
   class Live
     class API
       class NoPublicKeyProvided < Exception; end
@@ -220,7 +224,30 @@ class Niconico
         body.force_encoding('utf-8')
       end
 
+      def remove_timeshift_all
+        post_body = "delete=timeshift&confirm=#{fetch_token}"
+        ids = watching_reservations
+        if ids.size == 0
+          return
+        end
+        ids.each do |id|
+          id = normalize_id(id, with_lv: false)
+          # mechanize doesn't support multiple values for the same key in query.
+          post_body += "&vid%5B%5D=#{id}"
+        end
+        agent.post(
+          'http://live.nicovideo.jp/my.php',
+          post_body,
+          'Content-Type' => 'application/x-www-form-urlencoded'
+        )
+      end
+
       private
+
+      def fetch_token
+        page = agent.get('http://live.nicovideo.jp/my')
+        page.at('#confirm').attr('value')
+      end
 
       def normalize_id(id, with_lv: true)
         id = id.to_s

@@ -1,0 +1,17 @@
+class Niconico
+  class Live
+    class Util
+      class << self
+        def normalize_id(id, with_lv: true)
+          id = id.to_s
+
+          if with_lv
+            id.start_with?('lv') ? id : "lv#{id}"
+          else
+            id.start_with?('lv') ? id[2..-1] : id
+          end
+        end
+      end
+    end
+  end
+end

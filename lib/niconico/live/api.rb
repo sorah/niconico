@@ -1,6 +1,7 @@
 # coding: utf-8
 require 'time'
 require 'openssl'
+require 'niconico/live/util'
 
 class Niconico
   class Live
@@ -52,7 +53,7 @@ class Niconico
       end
 
       def get(id)
-        id = normalize_id(id)
+        id = Util::normalize_id(id)
 
         page = agent.get("http://live.nicovideo.jp/gate/#{id}")
 
@@ -98,7 +99,7 @@ class Niconico
       end
 
       def get_player_status(id, public_key = nil)
-        id = normalize_id(id)
+        id = Util::normalize_id(id)
         page = agent.get("http://ow.live.nicovideo.jp/api/getplayerstatus?locale=GLOBAL&lang=ja%2Djp&v=#{id}&seat%5Flocale=JP")
         if page.body[0] == 'c' # encrypted
           page = Nokogiri::XML(decrypt_encrypted_player_status(page.body, public_key))
@@ -181,11 +182,11 @@ class Niconico
 
       def watching_reservations
         page = agent.get(URL_WATCHINGRESERVATION_LIST)
-        page.search('vid').map(&:inner_text).map{ |_| normalize_id(_) }
+        page.search('vid').map(&:inner_text).map{ |_| Util::normalize_id(_) }
       end
 
       def accept_watching_reservation(id_)
-        id = normalize_id(id_, with_lv: false)
+        id = Util::normalize_id(id_, with_lv: false)
         page = agent.get("http://live.nicovideo.jp/api/watchingreservation?mode=confirm_watch_my&vid=#{id}&next_url&analytic")
         token = page.at('#reserve button')['onclick'].scan(/'(.+?)'/)[1][0]
 
@@ -218,18 +219,6 @@ class Niconico
 
         body = cipher.update(encrypted_body) + cipher.final
         body.force_encoding('utf-8')
-      end
-
-      private
-
-      def normalize_id(id, with_lv: true)
-        id = id.to_s
-
-        if with_lv
-          id.start_with?('lv') ? id : "lv#{id}"
-        else
-          id.start_with?('lv') ? id[2..-1] : id
-        end
       end
     end
   end

@@ -11,7 +11,7 @@ class Niconico
       end
 
       def remove_timeshifts(ids)
-        post_body = "delete=timeshift&confirm=#{fetch_token}"
+        post_body = "delete=timeshift&confirm=#{Util::fetch_token(@agent)}"
         if ids.size == 0
           return
         end
@@ -25,13 +25,6 @@ class Niconico
           post_body,
           'Content-Type' => 'application/x-www-form-urlencoded'
         )
-      end
-
-      private
-
-      def fetch_token
-        page = @agent.get('http://live.nicovideo.jp/my')
-        page.at('#confirm').attr('value')
       end
     end
   end

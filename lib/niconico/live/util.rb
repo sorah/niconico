@@ -11,6 +11,11 @@ class Niconico
             id.start_with?('lv') ? id[2..-1] : id
           end
         end
+
+        def fetch_token(agent)
+          page = agent.get('http://live.nicovideo.jp/my')
+          page.at('#confirm').attr('value')
+        end
       end
     end
   end

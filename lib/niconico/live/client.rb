@@ -1,3 +1,6 @@
+require 'niconico/live/client/search_result'
+require 'niconico/live/client/search_filters'
+
 class Niconico
   def live_client
     Live::Client.new(self.agent)
@@ -5,6 +8,7 @@ class Niconico
 
   class Live
     class Client
+
       def initialize(agent)
         @agent = agent
         @api = API.new(agent)
@@ -25,6 +29,30 @@ class Niconico
           post_body,
           'Content-Type' => 'application/x-www-form-urlencoded'
         )
+      end
+
+      def search(keyword, filters = [])
+        filter = filters.join('+')
+        page = @agent.get(
+          'http://live.nicovideo.jp/search',
+          track: '',
+          sort: 'recent',
+          date: '',
+          kind: '',
+          keyword: keyword,
+          filter: filter
+        )
+        results_dom = page.at('.result_list')
+        items = results_dom.css('.result_item')
+        search_results = items.map do |item|
+          title_dom = item.at('.search_stream_title a')
+          next nil unless title_dom
+          id = title_dom.attr(:href).scan(/lv[\d]+/).first
+          title = title_dom.text.strip
+          description = item.at('.search_stream_description').text.strip
+          SearchResult.new(id, title, description)
+        end
+        search_results.compact
       end
     end
   end

@@ -1,5 +1,5 @@
 require 'niconico/live/client/search_result'
-require 'niconico/live/client/search_filters.rb'
+require 'niconico/live/client/search_filters'
 
 class Niconico
   def live_client

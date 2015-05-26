@@ -187,13 +187,16 @@ class Niconico
 
       def accept_watching_reservation(id_)
         id = Util::normalize_id(id_, with_lv: false)
-        page = agent.get("http://live.nicovideo.jp/api/watchingreservation?mode=confirm_watch_my&vid=#{id}&next_url&analytic")
-        token = page.at('#reserve button')['onclick'].scan(/'(.+?)'/)[1][0]
 
+        page = agent.get("http://live.nicovideo.jp/api/watchingreservation?mode=watch_num&vid=#{id}&next_url&analytic")
+
+        token = Util::fetch_token(@agent)
+        page = agent.post("http://live.nicovideo.jp/api/watchingreservation",
+                          mode: 'auto_register', vid: id, token: token, '_' => '')
+
+        token = Util::fetch_token(@agent)
         page = agent.post("http://live.nicovideo.jp/api/watchingreservation",
                           accept: 'true', mode: 'use', vid: id, token: token)
-
-        page.at('nicolive_video_response')['status'] == 'ok'
       end
 
       def decrypt_encrypted_player_status(body, public_key)

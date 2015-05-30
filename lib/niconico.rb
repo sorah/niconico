@@ -36,6 +36,7 @@ class Niconico
 
     @agent = Mechanize.new.tap do |agent|
       agent.user_agent = "Niconico.gem (#{Niconico::VERSION}, https://github.com/sorah/niconico)"
+      agent.keep_alive = false
 
       agent.cookie_jar.add(
         HTTP::Cookie.new(

@@ -165,6 +165,16 @@ class Niconico
           ticket: rtmp.at('ticket').inner_text,
         }
 
+        stream = status.at('stream')
+        result[:stream] = {
+          id:                stream.at('id').inner_text,
+          default_community: stream.at('default_community').inner_text,
+          base_time:         stream.at('base_time').inner_text.to_i,
+          open_time:         stream.at('open_time').inner_text.to_i,
+          watch_count:       stream.at('watch_count').inner_text.to_i,
+          comment_count:     stream.at('comment_count').inner_text.to_i
+        }
+
         ms = status.at('ms')
         result[:ms] = {
           address: ms.at('addr').inner_text,

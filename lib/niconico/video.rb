@@ -86,6 +86,7 @@ class Niconico
 
     def get_video
       raise VideoUnavailableError unless available?
+      raise UnsupportedVideoError if video_url !~ /^http/
       unless block_given?
           @agent.get_file(video_url)
       else
@@ -139,5 +140,6 @@ class Niconico
 
     class NotFound < StandardError; end
     class VideoUnavailableError < StandardError; end
+    class UnsupportedVideoError < StandardError; end
   end
 end

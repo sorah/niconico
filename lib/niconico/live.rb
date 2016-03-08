@@ -14,6 +14,7 @@ class Niconico
     class ReservationNotAccepted < Exception; end
     class TicketRetrievingFailed < Exception; end
     class AcceptingReservationFailed < Exception; end
+    class RtmpdumpFailed < Exception; end
 
     class << self
       def public_key

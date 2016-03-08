@@ -180,12 +180,68 @@ class Niconico
     end
 
     def rtmpdump_commands(file_base)
+      case seat[:provider_type]
+      when 'community'
+        rtmpdump_commands_for_community(file_base)
+      else
+        rtmpdump_commands_for_official(file_base)
+      end
+    end
+
+    def rtmpdump_commands_for_community(file_base)
       file_base = File.expand_path(file_base)
 
+      # /publish lv000000000 rtmp://nlpoca000.live.nicovideo.jp:1935/fileorigin/ts_00,/content/20160308/lv000000000_000000000000_0_0f0000.f4v?0000000000:00:deadbeefdeadbeef
       publishes = quesheet.select{ |_| /^\/publish / =~ _[:body] }.map do |publish|
         publish[:body].split(/ /).tap(&:shift)
       end
 
+      # /play rtmp:lv000000000 main
+      plays = quesheet.select{ |_| /^\/play / =~ _[:body] }
+ 
+      plays.flat_map.with_index do |play, i|
+        publish_id = play[:body].match(/rtmp:(.+?) /)[1]
+
+        contents = publishes.select{ |_| _[0] == publish_id }
+
+        contents.map.with_index do |content, j|
+          content = content[1].split(?,)
+          rtmp = "#{self.rtmp_url}/#{publish_id}"
+
+          nlplaynotice = [
+            content[0],
+            "mp4:#{content[1]}",
+            "#{content[1].split(?/).last.split(??).first}_0",
+          ].join(?,)
+
+          seq = 0
+          begin
+            file = "#{file_base}.#{i}.#{j}.#{seq}.flv"
+            seq += 1
+          end while File.exist?(file)
+
+          # requires customized version: https://github.com/sorah/rtmpdump_nicolive/tree/d1c0f5d9a42240e77350534d664451e8fd0a4ec4
+          ['rtmpdump',
+           '-V',
+           '--live',
+           '-o', file,
+           '-r', rtmp,
+           '-C', "S:#{ticket}",
+           '-N', nlplaynotice,
+          ]
+        end
+      end
+    end
+
+    def rtmpdump_commands_for_official(file_base)
+      file_base = File.expand_path(file_base)
+
+      # /publish lv000000000_on0_XXX_0@s00000 /content/20151210/lv000000000_000000000000_0_0a0000.f4v
+      publishes = quesheet.select{ |_| /^\/publish / =~ _[:body] }.map do |publish|
+        publish[:body].split(/ /).tap(&:shift)
+      end
+
+      # "/play case:middle:rtmp:lv000000000_xxxx_xxxx_0@s000000,cam1:rtmp:lv000000000_gd_MNK_00@s00000,cam2:rtmp:lv000000000_gd_MNK_0@s00000,cam0:rtmp:lv000000000_gd_MNK_6@s35997,cam4:rtmp:lv000000000_xxxx_xxxx_0@s000000,default:rtmp:lv000000000_on0_XXX_0@s00000 main"
       plays = quesheet.select{ |_| /^\/play / =~ _[:body] }
  
       plays.flat_map.with_index do |play, i|

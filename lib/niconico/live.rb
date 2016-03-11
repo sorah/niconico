@@ -170,6 +170,16 @@ class Niconico
       seat[:quesheet]
     end
 
+    def quesheet_publishes
+      @quesheet_publishes ||= quesheet.select { |_| /^\/publish / =~ _[:body] }.map do |publish|
+        publish[:body].split(/ /).tap(&:shift)
+      end
+    end
+
+    def queshet_plays
+      @quesheet_plays ||= quesheet.select { |_| /^\/play / =~ _[:body] }
+    end
+
     def execute_rtmpdump(file_base, ignore_failure = false)
       rtmpdump_commands(file_base).map do |cmd|
         system *cmd
@@ -180,13 +190,65 @@ class Niconico
     end
 
     def rtmpdump_commands(file_base)
+      case seat[:provider_type]
+      when 'community'
+        rtmpdump_commands_for_community(file_base)
+      else
+        rtmpdump_commands_for_official(file_base)
+      end
+    end
+
+    def rtmpdump_commands_for_community(file_base)
       file_base = File.expand_path(file_base)
 
-      publishes = quesheet.select{ |_| /^\/publish / =~ _[:body] }.map do |publish|
-        publish[:body].split(/ /).tap(&:shift)
-      end
+      # /publish lv000000000 rtmp://nlpoca000.live.nicovideo.jp:1935/fileorigin/ts_00,/content/20160308/lv000000000_000000000000_0_0f0000.f4v?0000000000:00:deadbeefdeadbeef
+      publishes = cuesheet_publishes
 
-      plays = quesheet.select{ |_| /^\/play / =~ _[:body] }
+      # /play rtmp:lv000000000 main
+      plays = cuesheet_plays
+ 
+      plays.flat_map.with_index do |play, i|
+        publish_id = play[:body].match(/rtmp:(.+?) /)[1]
+
+        contents = publishes.select{ |_| _[0] == publish_id }
+
+        contents.map.with_index do |content, j|
+          content = content[1].split(?,)
+          rtmp = "#{self.rtmp_url}/#{publish_id}"
+
+          nlplaynotice = [
+            content[0],
+            "mp4:#{content[1]}",
+            "#{content[1].split(?/).last.split(??).first}_0",
+          ].join(?,)
+
+          seq = 0
+          begin
+            file = "#{file_base}.#{i}.#{j}.#{seq}.flv"
+            seq += 1
+          end while File.exist?(file)
+
+          # requires customized version: https://github.com/sorah/rtmpdump_nicolive/tree/d1c0f5d9a42240e77350534d664451e8fd0a4ec4
+          ['rtmpdump',
+           '-V',
+           '--live',
+           '-o', file,
+           '-r', rtmp,
+           '-C', "S:#{ticket}",
+           '-N', nlplaynotice,
+          ]
+        end
+      end
+    end
+
+    def rtmpdump_commands_for_official(file_base)
+      file_base = File.expand_path(file_base)
+
+      # /publish lv000000000_on0_XXX_0@s00000 /content/20151210/lv000000000_000000000000_0_0a0000.f4v
+      publishes = quesheet_publishes
+
+      # "/play case:middle:rtmp:lv000000000_xxxx_xxxx_0@s000000,cam1:rtmp:lv000000000_gd_MNK_00@s00000,cam2:rtmp:lv000000000_gd_MNK_0@s00000,cam0:rtmp:lv000000000_gd_MNK_6@s35997,cam4:rtmp:lv000000000_xxxx_xxxx_0@s000000,default:rtmp:lv000000000_on0_XXX_0@s00000 main"
+      plays = quesheet_plays
  
       plays.flat_map.with_index do |play, i|
         cases = play[:body].sub(/^case:/,'').split(/ /)[1].split(/,/)

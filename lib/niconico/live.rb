@@ -170,6 +170,16 @@ class Niconico
       seat[:quesheet]
     end
 
+    def quesheet_publishes
+      @quesheet_publishes ||= quesheet.select { |_| /^\/publish / =~ _[:body] }.map do |publish|
+        publish[:body].split(/ /).tap(&:shift)
+      end
+    end
+
+    def queshet_plays
+      @quesheet_plays ||= quesheet.select { |_| /^\/play / =~ _[:body] }
+    end
+
     def execute_rtmpdump(file_base, ignore_failure = false)
       rtmpdump_commands(file_base).map do |cmd|
         system *cmd
@@ -192,12 +202,10 @@ class Niconico
       file_base = File.expand_path(file_base)
 
       # /publish lv000000000 rtmp://nlpoca000.live.nicovideo.jp:1935/fileorigin/ts_00,/content/20160308/lv000000000_000000000000_0_0f0000.f4v?0000000000:00:deadbeefdeadbeef
-      publishes = quesheet.select{ |_| /^\/publish / =~ _[:body] }.map do |publish|
-        publish[:body].split(/ /).tap(&:shift)
-      end
+      publishes = cuesheet_publishes
 
       # /play rtmp:lv000000000 main
-      plays = quesheet.select{ |_| /^\/play / =~ _[:body] }
+      plays = cuesheet_plays
  
       plays.flat_map.with_index do |play, i|
         publish_id = play[:body].match(/rtmp:(.+?) /)[1]
@@ -237,12 +245,10 @@ class Niconico
       file_base = File.expand_path(file_base)
 
       # /publish lv000000000_on0_XXX_0@s00000 /content/20151210/lv000000000_000000000000_0_0a0000.f4v
-      publishes = quesheet.select{ |_| /^\/publish / =~ _[:body] }.map do |publish|
-        publish[:body].split(/ /).tap(&:shift)
-      end
+      publishes = quesheet_publishes
 
       # "/play case:middle:rtmp:lv000000000_xxxx_xxxx_0@s000000,cam1:rtmp:lv000000000_gd_MNK_00@s00000,cam2:rtmp:lv000000000_gd_MNK_0@s00000,cam0:rtmp:lv000000000_gd_MNK_6@s35997,cam4:rtmp:lv000000000_xxxx_xxxx_0@s000000,default:rtmp:lv000000000_on0_XXX_0@s00000 main"
-      plays = quesheet.select{ |_| /^\/play / =~ _[:body] }
+      plays = quesheet_plays
  
       plays.flat_map.with_index do |play, i|
         cases = play[:body].sub(/^case:/,'').split(/ /)[1].split(/,/)

@@ -115,7 +115,7 @@ class Niconico
       params[:fork] = 1 if owner
 
       begin
-        res = @agent.get(File.join(@ms, "thread"), params)
+        res = @agent.get(URI.join(@ms, "thread"), params)
       rescue Mechanize::ResponseCodeError => e
         raise NotFound, "#{@id} not found" if e.message == "404 => Net::HTTPNotFound"
         raise e

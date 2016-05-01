@@ -73,6 +73,10 @@ class Niconico
                 else;     :flv
                 end
       end
+
+      @ms = getflv[:ms]
+      @getflv_thread_id = getflv[:thread_id]
+
       @tags ||= @page.search("#video_tags a[rel=tag]").map(&:inner_text)
       @mylist_comment ||= nil
 
@@ -99,6 +103,24 @@ class Niconico
           end
         end
       end
+    end
+
+    def get_comment(num, owner=false)
+      raise CommentUnavailableError unless @ms
+
+      params = {}
+      params[:version] = 20090904
+      params[:res_from] = -1 * num
+      params[:thread] = @getflv_thread_id
+      params[:fork] = 1 if owner
+
+      begin
+        res = @agent.get(File.join(@ms, "thread"), params)
+      rescue Mechanize::ResponseCodeError => e
+        raise NotFound, "#{@id} not found" if e.message == "404 => Net::HTTPNotFound"
+        raise e
+      end
+      res.body
     end
 
     def get_video_by_other
@@ -141,5 +163,6 @@ class Niconico
     class NotFound < StandardError; end
     class VideoUnavailableError < StandardError; end
     class UnsupportedVideoError < StandardError; end
+    class CommentUnavailableError < StandardError; end
   end
 end

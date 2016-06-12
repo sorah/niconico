@@ -43,15 +43,14 @@ class Niconico
           name: 'lang', value: 'ja-jp',
         )
       )
-    end
 
-    # niconico comment server ignore 'Accept-Encoding' and return response by 'identity'
-    @agent.content_encoding_hooks << lambda do |a, uri, resp, body_io|
-      if resp['Content-Encoding'].to_s == 'identity'
-        resp['Content-Encoding'] = nil
+      # niconico comment server ignore 'Accept-Encoding' and return response by 'identity'
+      agent.content_encoding_hooks << lambda do |a, uri, resp, body_io|
+        if resp['Content-Encoding'].to_s == 'identity'
+          resp['Content-Encoding'] = nil
+        end
       end
     end
-    @agent
   end
 
   def login(force=false)

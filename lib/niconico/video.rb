@@ -109,15 +109,15 @@ class Niconico
       raise CommentUnavailableError unless @ms
 
       params = {}
-      params[:version] = 20090904
-      params[:res_from] = -1 * num
-      params[:thread] = @getflv_thread_id
-      params[:fork] = 1 if owner
+      params[:version] = '20090904'
+      params[:res_from] = (-1 * num).to_s
+      params[:thread] = @getflv_thread_id.to_s
+      params[:fork] = '1' if owner
 
       begin
         res = @agent.get(URI.join(@ms, "thread"), params)
       rescue Mechanize::ResponseCodeError => e
-        raise NotFound, "#{@id} not found" if e.message == "404 => Net::HTTPNotFound"
+        raise NotFound, "#{@id} comment not found" if e.response_code == "404"
         raise e
       end
       res.body

@@ -6,11 +6,11 @@ require 'niconico/version'
 
 class Niconico
   URL = {
-    top: 'http://www.nicovideo.jp/',
+    top: 'https://www.nicovideo.jp/',
     login: 'https://secure.nicovideo.jp/secure/login?site=niconico',
-    watch: 'http://www.nicovideo.jp/watch/',
-    getflv: 'http://flapi.nicovideo.jp/api/getflv',
-    my_mylist: 'http://www.nicovideo.jp/my/mylist'
+    watch: 'https://www.nicovideo.jp/watch/',
+    getflv: 'https://flapi.nicovideo.jp/api/getflv',
+    my_mylist: 'https://www.nicovideo.jp/my/mylist'
   }
 
   attr_reader :agent

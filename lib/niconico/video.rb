@@ -67,7 +67,7 @@ class Niconico
       @video_url = getflv[:url]
       if @video_url
         @eco = !(/low$/ =~ @video_url).nil?
-        @type = case @video_url.match(/^http:\/\/(.+\.)?nicovideo\.jp\/smile\?(.+?)=.*$/).to_a[2]
+        @type = case @video_url.match(/^https?:\/\/(.+\.)?nicovideo\.jp\/smile\?(.+?)=.*$/).to_a[2]
                 when 'm'; :mp4
                 when 's'; :swf
                 else;     :flv

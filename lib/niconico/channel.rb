@@ -8,7 +8,7 @@ class Niconico
   def channel_videos(ch)
     login unless logged_in?
 
-    rss = Nokogiri::XML(open("http://ch.nicovideo.jp/#{ch}/video?rss=2.0", &:read))
+    rss = Nokogiri::XML(open("https://ch.nicovideo.jp/#{ch}/video?rss=2.0", &:read))
 
     rss.search('channel item').map do |item|
       title = item.at('title').inner_text

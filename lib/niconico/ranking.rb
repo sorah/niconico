@@ -21,7 +21,7 @@ class Niconico
     method = :res if method == :comment
     method = :fav if method == :all
 
-    page = @agent.get(url = "http://www.nicovideo.jp/ranking/#{method}/#{span}/#{category}")
+    page = @agent.get(url = "https://www.nicovideo.jp/ranking/#{method}/#{span}/#{category}")
     page.search(".ranking.itemTitle a").map do |link|
       Video.new(self, link['href'].sub(/^.*?watch\//,""), title: link.inner_text)
     end

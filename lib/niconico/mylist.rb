@@ -5,7 +5,7 @@ class Niconico
   def mylist(i)
     login unless logged_in?
 
-    page = @agent.get(url = "http://www.nicovideo.jp/mylist/#{i.to_s.sub(/^mylist\//,"")}")
+    page = @agent.get(url = "https://www.nicovideo.jp/mylist/#{i.to_s.sub(/^mylist\//,"")}")
     #require 'ir_b'; ir b
     if page.search("script").map(&:inner_text).find{|x| /\tMylist\.preload/ =~ x }.match(/\tMylist\.preload\(\d+, (.+?)\);\n/)
       json = JSON.parse($1)
